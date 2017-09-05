@@ -1,0 +1,15 @@
+Package: kdigo
+Type: Package
+Title: KDIGO Diagnosistics Tool
+Version: 0.1.0
+Authors@R: person("Jadon", "Wagstaff", email = "jadon.wagstaff@hsc.utah.edu",
+  role = c("aut", "cre"))
+Description: Uses Kidney Disease: Improving Global Outcomes (KDIGO)
+  guidelines to diagnose Acute Kidney Injury (AKI).
+License: CC0
+Encoding: UTF-8
+LazyData: true
+Imports: dplyr,
+  purrr,
+  tibble
+RoxygenNote: 6.0.1
