@@ -11,7 +11,7 @@
 #' Identification of Acute Kidney Injury: The NHS England National
 #' Patient Safety Alert. \emph{Nephron, 131, 113-117.}
 #'
-#' @param creatinine Returns data frame with specific columns:
+#' @param creatinine Data frame containing specific columns:
 #'
 #' \strong{ID:} Unique patient identification.
 #'
@@ -26,7 +26,7 @@
 #' \strong{RI_HIGH:} Reference index for high side of normal expected
 #' creatinine levels.
 #'
-#' @return Data frame identifying acute kidney injury with specific
+#' @return Returns a data frame identifying acute kidney injury with specific
 #' colums:
 #'
 #' \strong{AKI_FLAG:} TRUE if some AKI event is detected, FALSE if
@@ -52,7 +52,7 @@ detect_aki <- function(creatinine) {
   creatinine <- dplyr::group_by(creatinine, ID)
   # function global variable
   two_day_low <- NA
-  
+
   # option to determine aki where there is no baseline
   no_baseline <- function(index) {
     if (creatinine$RESULT[[index]] < creatinine$RI_HIGH[[index]]) {
@@ -61,7 +61,7 @@ detect_aki <- function(creatinine) {
       creatinine$AKI_FLAG[[index]] <<- TRUE
     }
   }
-  
+
   # determines whether there is a baseline and what that should be
   find_baseline <- function(previous, current) {
     differences <- creatinine$C_DTS[current] -1 * creatinine$C_DTS[previous]
@@ -80,7 +80,7 @@ detect_aki <- function(creatinine) {
       return(NA)
     }
   }
-  
+
   # use calculated baseline to identify aki
   use_baseline <- function(index, baseline) {
     cr <- creatinine$RESULT[[index]]
@@ -102,7 +102,7 @@ detect_aki <- function(creatinine) {
       creatinine$AKI_FLAG[[index]] <<- FALSE
     }
   }
-  
+
   groups <- attributes(creatinine)$indices
   for (i in seq_along(groups)) {
     for (j in seq_along(groups[[i]])) {
