@@ -6,6 +6,8 @@ Authors@R: person("Jadon", "Wagstaff", email = "jadon.wagstaff@hsc.utah.edu",
   role = c("aut", "cre"))
 Description: Uses Kidney Disease: Improving Global Outcomes (KDIGO)
   guidelines to diagnose Acute Kidney Injury (AKI).
+URL: https://github.com/jadonwagstaff/kdigo
+BugReports: https://github.com/jadonwagstaff/kdigo/issues
 License: CC0
 Encoding: UTF-8
 LazyData: true
