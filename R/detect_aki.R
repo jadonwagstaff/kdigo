@@ -69,10 +69,12 @@ detect_aki <- function(creatinine) {
     week <- creatinine$RESULT[previous[differences <= 7]]
     year <- creatinine$RESULT[previous[differences <= 365]]
     two_day_low <<- NA
-    if (length(week) > 0) {
-      if (length(two_days) > 0) {
-        two_day_low <<- min(two_days)
-      }
+    if (length(two_days) > 0) {
+      two_day_low <<- min(two_days)
+    }
+    if (length(week) > 0 && length(two_days) > 0) {
+      return(min(min(week), median(year)))
+    } else if (length(week) > 0) {
       return(min(week))
     } else if (length(year) > 0) {
       return(median(year))
