@@ -29,15 +29,17 @@
 #' collected. Must be R datetime object.
 #'
 #' \strong{RESULT:} Creatinine value cooresponding to collected sample.
-#'
-#' \strong{BIRTH_DT:} Birth date of patient. Must be R date or
-#' datetime object.
+#' Units must be mg/dl.
 #'
 #' Optional:
 #'
+#' \strong{BIRTH_DT:} Birth date of patient. Must be R date or
+#' datetime object. Only used for ages under 18.
+#'
 #' \strong{ULRI:} Reference index for upper limit of normal expected
-#' creatinine levels. Only required for ages under 18. See note in details
-#' for default value
+#' creatinine levels. Only used for ages under 18. If no value is provided,
+#' a value will be calculated based on age (see note in details). Units
+#' must be mg/dl.
 #'
 #' @return Returns a data frame identifying acute kidney injury with specific
 #' colums:
@@ -54,7 +56,6 @@ detect_aki <- function(df) {
   #--------------------------------------------------------------------------------
   # PROCESS INPUT
   #--------------------------------------------------------------------------------
-  df <- dplyr::mutate(df, CR_ROW = row_number())
   creatinine <- tibble::tibble(ID = df$ID,
                                COLLECTED_DT = as.numeric(readr::parse_datetime(df$COLLECTED_DT)) / (24 * 3600),
                                BIRTH_DT = as.numeric(readr::parse_datetime(df$BIRTH_DT)) / (24 * 3600),
@@ -62,7 +63,7 @@ detect_aki <- function(df) {
                                ULRI = rep(as.numeric(NA), nrow(df)),
                                AKI_STAGE = rep(as.numeric(NA), nrow(df)),
                                AKI_BASELINE = rep(as.numeric(NA), nrow(df)),
-                               CR_ROW = df$CR_ROW)
+                               CR_ROW = 1:nrow(df))
   if ("ULRI" %in% colnames(df)) {
     creatinine$ULRI <- df$ULRI
   }
@@ -78,6 +79,7 @@ detect_aki <- function(df) {
   #--------------------------------------------------------------------------------
 
   # use to establish substitute ULRI value
+  # age in years
   find_ulri <- function(age) {
     return(-0.007297343 - 0.2164216 * log(age) + 0.3504704 * sqrt(age))
   }
@@ -85,7 +87,7 @@ detect_aki <- function(df) {
   # determines whether there is a baseline and what that should be
   find_baseline <- function(previous, current) {
     differences <- creatinine$COLLECTED_DT[current] - creatinine$COLLECTED_DT[previous]
-    two_days <- creatinine$RESULT[previous[differences < 2]]
+    two_days <- creatinine$RESULT[previous[differences <= 2]]
     week <- creatinine$RESULT[previous[differences <= 7]]
     year <- creatinine$RESULT[previous[differences <= 365 & differences > 7]]
     two_day_low <<- NA
@@ -109,7 +111,7 @@ detect_aki <- function(df) {
     ratio <- cr / baseline
     age <- creatinine$COLLECTED_DT[[index]] - creatinine$BIRTH_DT[[index]]
     if (ratio >= 1.5) {
-      if (age < 6570) {
+      if (!is.na(age) && age < 6570) {
         if (is.na(creatinine$ULRI[[index]])) {
           creatinine$ULRI[[index]] <<- find_ulri(age / 365)
         }
@@ -117,7 +119,7 @@ detect_aki <- function(df) {
           return(3)
         }
       }
-      if ((age >= 6570 && cr > 4) || ratio > 3) {
+      if (cr > 4 || ratio >= 3) {
         return(3)
       } else if (ratio >= 2) {
         return(2)
@@ -156,10 +158,12 @@ detect_aki <- function(df) {
   creatinine <- dplyr::select(creatinine, CR_ROW, ULRI, AKI_STAGE, AKI_BASELINE)
   df <- dplyr::mutate(df,
                       AKI_STAGE = NA,
-                      AKI_BASELINE = NA)
+                      AKI_BASELINE = NA,
+                      ULRI = NA)
   df$AKI_STAGE[creatinine$CR_ROW] <- creatinine$AKI_STAGE
   df$AKI_BASELINE[creatinine$CR_ROW] <- creatinine$AKI_BASELINE
-  return(dplyr::select(df, -CR_ROW))
+  df$ULRI[creatinine$CR_ROW] <- creatinine$ULRI
+  return(df)
 }
 
 

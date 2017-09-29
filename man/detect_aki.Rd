@@ -15,15 +15,17 @@ detect_aki(df)
 collected. Must be R datetime object.
 
 \strong{RESULT:} Creatinine value cooresponding to collected sample.
-
-\strong{BIRTH_DT:} Birth date of patient. Must be R date or
-datetime object.
+Units must be mg/dl.
 
 Optional:
 
+\strong{BIRTH_DT:} Birth date of patient. Must be R date or
+datetime object. Only used for ages under 18.
+
 \strong{ULRI:} Reference index for upper limit of normal expected
-creatinine levels. Only required for ages under 18. See note in details
-for default value}
+creatinine levels. Only used for ages under 18. If no value is provided,
+a value will be calculated based on age (see note in details). Units
+must be mg/dl.}
 }
 \value{
 Returns a data frame identifying acute kidney injury with specific
