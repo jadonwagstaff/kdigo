@@ -158,11 +158,9 @@ detect_aki <- function(df) {
   creatinine <- dplyr::select(creatinine, CR_ROW, ULRI, AKI_STAGE, AKI_BASELINE)
   df <- dplyr::mutate(df,
                       AKI_STAGE = NA,
-                      AKI_BASELINE = NA,
-                      ULRI = NA)
+                      AKI_BASELINE = NA)
   df$AKI_STAGE[creatinine$CR_ROW] <- creatinine$AKI_STAGE
   df$AKI_BASELINE[creatinine$CR_ROW] <- creatinine$AKI_BASELINE
-  df$ULRI[creatinine$CR_ROW] <- creatinine$ULRI
   return(df)
 }
 
