@@ -4,35 +4,35 @@
 \alias{detect_aki}
 \title{Identify Acute Kidney Injury}
 \usage{
-detect_aki(creatinine)
+detect_aki(df)
 }
 \arguments{
-\item{creatinine}{Returns data frame with specific columns:
+\item{df}{Data frame containing specific columns:
 
 \strong{ID:} Unique patient identification.
 
-\strong{COLLECTED_DTS:} Dates when corresponding samples were
+\strong{COLLECTED_DT:} Dates when corresponding samples were
 collected. Must be R datetime object.
 
 \strong{RESULT:} Creatinine value cooresponding to collected sample.
 
-\strong{BIRTH_DTS:} Birth date of patient. Must be R date or
+\strong{BIRTH_DT:} Birth date of patient. Must be R date or
 datetime object.
 
-\strong{RI_HIGH:} Reference index for high side of normal expected
-creatinine levels.}
+Optional:
+
+\strong{ULRI:} Reference index for upper limit of normal expected
+creatinine levels. Only required for ages under 18. See note in details
+for default value}
 }
 \value{
-Data frame identifying acute kidney injury with specific
+Returns a data frame identifying acute kidney injury with specific
 colums:
 
-\strong{AKI_FLAG:} TRUE if some AKI event is detected, FALSE if
-AKI event was not detected.
+\strong{AKI_STAGE:} Classifies the stage (1,2,3) of AKI event. 0 if there
+is no AKI event and NA if classification is unknown.
 
-\strong{STAGE:} Classifies the stage (1,2,3) of AKI event. Returns
-NA if classification is unknown or AKI_FLAG is FALSE.
-
-\strong{BASELINE:} Baseline used in detection of AKI_FLAG. Returns
+\strong{AKI_BASELINE:} Baseline used in detection of AKI_FLAG. Returns
 NA if no baseline was established.
 }
 \description{
@@ -42,11 +42,21 @@ detect AKI events.
 \details{
 Using Kidney Disease: Improving Global Outcomes (KDIGO)
 guidelines, Acute Kidney Injury (AKI) are detected using this
-function. Guidelines implemented can be found at:
+function. Guidelines implemented can be found at[1].
 
-Selby N. M., Hill R., & Fluck R. J. (2015). Standardizing the Early
-Identification of Acute Kidney Injury: The NHS England National
-Patient Safety Alert. \emph{Nephron, 131, 113-117.}
+Note: if no reference index (RI_HIGH) is provided for a creatinine
+value, a value will be generated using reference values found in
+[2]. For ages under 18, the fractional polynomial value will be
+used. This value may be used to categorize stage 3 AKI.
+
+1. Selby NM, Hill R, Fluck RJ. Standardizing the early
+identification of acute kidney injury: the NHS England ational
+patient safety alert. \emph{Nephron.} 2015;131:113-117.
+
+2. Ceriotti F, Boyd JC, Klein G, et al. Reference intervals for
+serum creatinine concentrations: assessment of available data
+for global application. \emph{Clinical Chemistry.}
+2008;54(3):559-566.
 }
 \keyword{kdigo,}
 \keyword{kidney}
