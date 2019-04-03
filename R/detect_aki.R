@@ -56,16 +56,17 @@ detect_aki <- function(df) {
   #--------------------------------------------------------------------------------
   # PROCESS INPUT
   #--------------------------------------------------------------------------------
-  creatinine <- tibble::tibble(ID = df$ID,
-                               COLLECTED_DT = as.numeric(readr::parse_datetime(df$COLLECTED_DT)) / (24 * 3600),
-                               BIRTH_DT = as.numeric(readr::parse_datetime(df$BIRTH_DT)) / (24 * 3600),
-                               RESULT = as.numeric(df$RESULT),
-                               ULRI = rep(as.numeric(NA), nrow(df)),
-                               AKI_STAGE = rep(as.numeric(NA), nrow(df)),
-                               AKI_BASELINE = rep(as.numeric(NA), nrow(df)),
-                               CR_ROW = 1:nrow(df))
+  creatinine <- dplyr::mutate(df,
+                       COLLECTED_DT = as.numeric(df$COLLECTED_DT) / (24 * 3600),
+                       BIRTH_DT = as.numeric(df$BIRTH_DT) / (24 * 3600),
+                       RESULT = as.numeric(df$RESULT),
+                       AKI_STAGE = as.numeric(NA),
+                       AKI_BASELINE = as.numeric(NA),
+                       CR_ROW = 1:nrow(df))
   if ("ULRI" %in% colnames(df)) {
-    creatinine$ULRI <- df$ULRI
+    creatinine <- dplyr::mutate(creatinine, ULRI = df$ULRI)
+  } else {
+    creatinine <- dplyr::mutate(creatinine, ULRI = as.numeric(NA))
   }
   creatinine <- dplyr::filter(creatinine, !is.na(ID) & !is.na(RESULT) & !is.na(COLLECTED_DT))
   creatinine <- dplyr::arrange(creatinine, ID, COLLECTED_DT)
@@ -137,12 +138,12 @@ detect_aki <- function(df) {
   #--------------------------------------------------------------------------------
   # FIND AKI EVENTS
   #--------------------------------------------------------------------------------
-  groups <- attributes(creatinine)$indices
+  groups <- attributes(creatinine)$groups$.rows
   for (i in seq_along(groups)) {
     for (j in seq_along(groups[[i]])) {
-      index <- groups[[i]][[j]] + 1
+      index <- groups[[i]][[j]]
       if (j != 1) {
-        baseline <- find_baseline(groups[[i]][1:(j - 1)] + 1, index)
+        baseline <- find_baseline(groups[[i]][1:(j - 1)], index)
         creatinine$AKI_BASELINE[[index]] <- baseline
         if (!is.na(baseline)) {
           creatinine$AKI_STAGE[[index]] <- use_baseline(index, baseline)
