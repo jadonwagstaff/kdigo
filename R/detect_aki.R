@@ -120,14 +120,14 @@ detect_aki <- function(df) {
           return(3)
         }
       }
-      if (cr > 4 || ratio >= 3) {
+      if (cr >= 4 || ratio >= 3) {
         return(3)
       } else if (ratio >= 2) {
         return(2)
       } else {
         return(1)
       }
-    } else if (!is.na(two_day_low) && cr - two_day_low > .3) {
+    } else if (!is.na(two_day_low) && cr - two_day_low >= .3) {
       return(1)
     } else {
       return(0)
